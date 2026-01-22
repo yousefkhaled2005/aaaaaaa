@@ -1,2 +1,3 @@
 streamlit
 PDFNetPython3
+requests
