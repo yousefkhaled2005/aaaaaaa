@@ -21,16 +21,13 @@ except ImportError:
         st.error("❌ المكتبة غير موجودة.")
         st.stop()
 
-# --- مفتاح اللينكس (الذي قمت باستخراجه) ---
-LICENSE_KEY = "demo:1769089401083:60be7ac403000000008734fa701ac6b35a189dc7043db3b78cdcd31eaa"
-
 # --- دالة إعداد المحرك (تحميل ملفات اللينكس الناقصة) ---
 def setup_apryse_module():
     if platform.system() == 'Linux':
         module_path = "Lib"
-        # التأكد من وجود المجلد
+        # التحقق من وجود المجلد
         if not os.path.exists(module_path):
-            st.info("⚙️ جاري إعداد محرك التحويل (لمرة واحدة)...")
+            st.info("⚙️ جاري إعداد محرك التحويل (لأول مرة فقط)...")
             url = "https://www.pdftron.com/downloads/StructuredOutputModuleLinux.tar.gz"
             file_name = "module.tar.gz"
             try:
@@ -56,13 +53,14 @@ def setup_apryse_module():
             pass
     return True
 
-# --- دالة التفعيل بالمفتاح ---
+# --- دالة التفعيل (بدون مفتاح لتجنب تعارض الإصدارات) ---
 def init_apryse():
     try:
-        PDFNet.Initialize(LICENSE_KEY)
+        # القوس الفارغ يجبر المكتبة على العمل مهما كان إصدارها
+        PDFNet.Initialize()
         return True
     except Exception as e:
-        st.error(f"خطأ في تفعيل المفتاح: {e}")
+        st.error(f"خطأ في التشغيل: {e}")
         return False
 
 # 3. الواجهة
@@ -70,14 +68,15 @@ uploaded_file = st.file_uploader("ارفع ملف PDF هنا", type=['pdf'])
 
 if uploaded_file and st.button("تحويل إلى Word"):
     
-    # التأكد من تحميل الموديول وتفعيل المفتاح
+    # 1. إعداد ملفات النظام
     if not setup_apryse_module():
         st.stop()
         
+    # 2. تشغيل المكتبة
     if not init_apryse():
         st.stop()
 
-    with st.spinner('⏳ جاري التحويل (Apryse Linux Engine)...'):
+    with st.spinner('⏳ جاري التحويل (Apryse Engine)...'):
         input_filename = "input.pdf"
         output_filename = "converted.docx"
         
@@ -101,7 +100,7 @@ if uploaded_file and st.button("تحويل إلى Word"):
         except Exception as e:
             st.error(f"حدث خطأ أثناء التحويل: {e}")
 
-# تنظيف الملفات المؤقتة
+# تنظيف
 if os.path.exists("input.pdf"): os.remove("input.pdf")
 if os.path.exists("converted.docx"): os.remove("converted.docx")
 if os.path.exists("module.tar.gz"): os.remove("module.tar.gz")
