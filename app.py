@@ -21,7 +21,10 @@ except ImportError:
         st.error("❌ المكتبة غير موجودة.")
         st.stop()
 
-# --- دالة التحميل الذاتي (شغالة تمام) ---
+# --- مفتاح اللينكس الجديد (الماستر) ---
+LICENSE_KEY = "demo:1769089401083:60be7ac403000000008734fa701ac6b35a189dc7043db3b78cdcd31eaa"
+
+# --- دالة تحميل ملفات التحويل (ضرورية للينكس) ---
 def setup_apryse_module():
     if platform.system() == 'Linux':
         module_path = "Lib"
@@ -49,14 +52,14 @@ def setup_apryse_module():
             pass
     return True
 
-# --- دالة التفعيل (بدون مفتاح = وضع الديمو) ---
+# --- دالة التفعيل بالمفتاح الجديد ---
 def init_apryse():
     try:
-        # تشغيل الوضع التجريبي بدون مفتاح لتجنب أخطاء التحقق
-        PDFNet.Initialize()
+        # هنا بنحط المفتاح الجديد اللي انت جبته
+        PDFNet.Initialize(LICENSE_KEY)
         return True
     except Exception as e:
-        st.error(f"خطأ في تشغيل المحرك: {e}")
+        st.error(f"خطأ في تفعيل المفتاح: {e}")
         return False
 
 # 3. الواجهة
@@ -70,7 +73,7 @@ if uploaded_file and st.button("تحويل إلى Word"):
     if not init_apryse():
         st.stop()
 
-    with st.spinner('⏳ جاري التحويل...'):
+    with st.spinner('⏳ جاري التحويل (Apryse Linux Engine)...'):
         input_filename = "input.pdf"
         output_filename = "converted.docx"
         
@@ -87,7 +90,7 @@ if uploaded_file and st.button("تحويل إلى Word"):
                 st.download_button(
                     label="⬇️ تحميل ملف الوورد",
                     data=f,
-                    file_name="Converted_Document.docx",
+                    file_name="Converted_Contract.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
                 
