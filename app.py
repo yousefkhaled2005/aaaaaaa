@@ -21,23 +21,26 @@ except ImportError:
         st.error("❌ المكتبة غير موجودة.")
         st.stop()
 
-# --- مفتاح اللينكس الجديد (الماستر) ---
+# --- مفتاح اللينكس (الذي قمت باستخراجه) ---
 LICENSE_KEY = "demo:1769089401083:60be7ac403000000008734fa701ac6b35a189dc7043db3b78cdcd31eaa"
 
-# --- دالة تحميل ملفات التحويل (ضرورية للينكس) ---
+# --- دالة إعداد المحرك (تحميل ملفات اللينكس الناقصة) ---
 def setup_apryse_module():
     if platform.system() == 'Linux':
         module_path = "Lib"
+        # التأكد من وجود المجلد
         if not os.path.exists(module_path):
             st.info("⚙️ جاري إعداد محرك التحويل (لمرة واحدة)...")
             url = "https://www.pdftron.com/downloads/StructuredOutputModuleLinux.tar.gz"
             file_name = "module.tar.gz"
             try:
+                # تحميل الملف
                 response = requests.get(url, stream=True)
                 with open(file_name, "wb") as f:
                     for chunk in response.iter_content(chunk_size=1024):
                         if chunk:
                             f.write(chunk)
+                # فك الضغط
                 with tarfile.open(file_name) as tar:
                     tar.extractall(".")
                 st.success("✅ المحرك جاهز!")
@@ -45,6 +48,7 @@ def setup_apryse_module():
                 st.error(f"فشل إعداد المحرك: {e}")
                 return False
         
+        # إضافة المسارات للمكتبة
         try:
             PDFNet.AddResourceSearchPath(".")
             PDFNet.AddResourceSearchPath("./Lib")
@@ -52,10 +56,9 @@ def setup_apryse_module():
             pass
     return True
 
-# --- دالة التفعيل بالمفتاح الجديد ---
+# --- دالة التفعيل بالمفتاح ---
 def init_apryse():
     try:
-        # هنا بنحط المفتاح الجديد اللي انت جبته
         PDFNet.Initialize(LICENSE_KEY)
         return True
     except Exception as e:
@@ -67,6 +70,7 @@ uploaded_file = st.file_uploader("ارفع ملف PDF هنا", type=['pdf'])
 
 if uploaded_file and st.button("تحويل إلى Word"):
     
+    # التأكد من تحميل الموديول وتفعيل المفتاح
     if not setup_apryse_module():
         st.stop()
         
@@ -97,7 +101,7 @@ if uploaded_file and st.button("تحويل إلى Word"):
         except Exception as e:
             st.error(f"حدث خطأ أثناء التحويل: {e}")
 
-# تنظيف
+# تنظيف الملفات المؤقتة
 if os.path.exists("input.pdf"): os.remove("input.pdf")
 if os.path.exists("converted.docx"): os.remove("converted.docx")
 if os.path.exists("module.tar.gz"): os.remove("module.tar.gz")
