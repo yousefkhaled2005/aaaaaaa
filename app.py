@@ -21,73 +21,58 @@ except ImportError:
         st.error("❌ المكتبة غير موجودة.")
         st.stop()
 
-# مفتاح الديمو (صحيح وسليم)
+# مفتاح الديمو
 LICENSE_KEY = "demo:1769086181672:60be7658030000000080d95114798c23373c11c26b9b2d0022d81ff14e"
 
-# --- دالة الإصلاح السحري: تحميل ملفات التحويل الناقصة ---
+# --- دالة التحميل الذاتي (شغالة تمام وممتازة) ---
 def setup_apryse_module():
-    # التحقق هل نحن على نظام لينكس (سيرفر ستريم ليت)
     if platform.system() == 'Linux':
         module_path = "Lib"
-        
-        # لو الملفات مش موجودة، نحملها
         if not os.path.exists(module_path):
-            st.info("⚙️ جاري إعداد محرك التحويل لأول مرة (قد يستغرق دقيقة)...")
-            
-            # رابط الملف الناقص من رسالة الخطأ
+            st.info("⚙️ جاري إعداد محرك التحويل (لمرة واحدة)...")
             url = "https://www.pdftron.com/downloads/StructuredOutputModuleLinux.tar.gz"
             file_name = "module.tar.gz"
-            
             try:
-                # 1. التحميل
                 response = requests.get(url, stream=True)
                 with open(file_name, "wb") as f:
                     for chunk in response.iter_content(chunk_size=1024):
                         if chunk:
                             f.write(chunk)
-                
-                # 2. فك الضغط
                 with tarfile.open(file_name) as tar:
-                    tar.extractall(".") # سيفك الضغط وينتج مجلد اسمه Lib
-                
-                st.success("✅ تم تثبيت المحرك بنجاح!")
-                
+                    tar.extractall(".")
+                st.success("✅ المحرك جاهز!")
             except Exception as e:
-                st.error(f"فشل تحميل المحرك: {e}")
+                st.error(f"فشل إعداد المحرك: {e}")
                 return False
         
-        # 3. إخبار المكتبة بمكان الملفات
         try:
-            # إضافة المسار الحالي والمجلد Lib للبحث
             PDFNet.AddResourceSearchPath(".")
             PDFNet.AddResourceSearchPath("./Lib")
-        except Exception as e:
-            st.warning(f"تنبيه مسار: {e}")
-
+        except:
+            pass
     return True
 
-# --- الدالة الأساسية لتفعيل المفتاح ---
+# --- دالة تفعيل المفتاح ---
 def init_apryse():
     try:
         PDFNet.Initialize(LICENSE_KEY)
         return True
     except Exception as e:
-        st.error(f"خطأ في الترخيص: {e}")
+        st.error(f"خطأ الترخيص: {e}")
         return False
 
-# 3. واجهة المستخدم
+# 3. الواجهة
 uploaded_file = st.file_uploader("ارفع ملف PDF هنا", type=['pdf'])
 
 if uploaded_file and st.button("تحويل إلى Word"):
     
-    # أولاً: تشغيل دالة الإصلاح وتفعيل المكتبة
     if not setup_apryse_module():
         st.stop()
         
     if not init_apryse():
         st.stop()
 
-    with st.spinner('⏳ جاري التحويل (يتم الآن معالجة التنسيقات المعقدة)...'):
+    with st.spinner('⏳ جاري التحويل (لحظات)...'):
         input_filename = "input.pdf"
         output_filename = "converted.docx"
         
@@ -95,13 +80,10 @@ if uploaded_file and st.button("تحويل إلى Word"):
             f.write(uploaded_file.getbuffer())
 
         try:
-            # التأكد من تحميل الحزمة (بعد ما حملناها يدوياً فوق)
-            if not Convert.IsToWordPackagePresent():
-                st.warning("⚠️ حزمة التحويل غير ظاهرة، جاري المحاولة...")
-
+            # === التعديل هنا: حذفنا سطر الفحص ودخلنا في التحويل مباشرة ===
             word_options = WordOutputOptions()
             
-            # أمر التحويل
+            # أمر التحويل المباشر
             Convert.ToWord(input_filename, output_filename, word_options)
             
             st.success("✅ تم التحويل بنجاح!")
@@ -116,8 +98,8 @@ if uploaded_file and st.button("تحويل إلى Word"):
                 
         except Exception as e:
             st.error(f"حدث خطأ أثناء التحويل: {e}")
-            st.error("تفاصيل: تأكد أن الرامات كافية وأن الملف ليس تالفاً.")
 
 # تنظيف
 if os.path.exists("input.pdf"): os.remove("input.pdf")
 if os.path.exists("converted.docx"): os.remove("converted.docx")
+if os.path.exists("module.tar.gz"): os.remove("module.tar.gz")
