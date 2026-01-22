@@ -21,10 +21,7 @@ except ImportError:
         st.error("❌ المكتبة غير موجودة.")
         st.stop()
 
-# مفتاح الديمو
-LICENSE_KEY = "demo:1769086181672:60be7658030000000080d95114798c23373c11c26b9b2d0022d81ff14e"
-
-# --- دالة التحميل الذاتي (شغالة تمام وممتازة) ---
+# --- دالة التحميل الذاتي (شغالة تمام) ---
 def setup_apryse_module():
     if platform.system() == 'Linux':
         module_path = "Lib"
@@ -52,13 +49,14 @@ def setup_apryse_module():
             pass
     return True
 
-# --- دالة تفعيل المفتاح ---
+# --- دالة التفعيل (بدون مفتاح = وضع الديمو) ---
 def init_apryse():
     try:
-        PDFNet.Initialize(LICENSE_KEY)
+        # تشغيل الوضع التجريبي بدون مفتاح لتجنب أخطاء التحقق
+        PDFNet.Initialize()
         return True
     except Exception as e:
-        st.error(f"خطأ الترخيص: {e}")
+        st.error(f"خطأ في تشغيل المحرك: {e}")
         return False
 
 # 3. الواجهة
@@ -72,7 +70,7 @@ if uploaded_file and st.button("تحويل إلى Word"):
     if not init_apryse():
         st.stop()
 
-    with st.spinner('⏳ جاري التحويل (لحظات)...'):
+    with st.spinner('⏳ جاري التحويل...'):
         input_filename = "input.pdf"
         output_filename = "converted.docx"
         
@@ -80,10 +78,7 @@ if uploaded_file and st.button("تحويل إلى Word"):
             f.write(uploaded_file.getbuffer())
 
         try:
-            # === التعديل هنا: حذفنا سطر الفحص ودخلنا في التحويل مباشرة ===
             word_options = WordOutputOptions()
-            
-            # أمر التحويل المباشر
             Convert.ToWord(input_filename, output_filename, word_options)
             
             st.success("✅ تم التحويل بنجاح!")
@@ -92,7 +87,7 @@ if uploaded_file and st.button("تحويل إلى Word"):
                 st.download_button(
                     label="⬇️ تحميل ملف الوورد",
                     data=f,
-                    file_name="Converted_Contract.docx",
+                    file_name="Converted_Document.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
                 
