@@ -1,43 +1,44 @@
 import streamlit as st
 import os
-import site
 import requests
 import tarfile
 import platform
+import site
 
 # 1. إعداد الصفحة
 st.set_page_config(page_title="Apryse PDF Pro", layout="centered")
-st.title("🚀 محول العقود والملفات المعقدة")
-st.caption("Powered by Apryse (Solid Documents Engine)")
+st.title("🚀 محول العقود (نسخة 2026)")
+st.caption("Powered by Apryse SDK 11.0")
 
-# 2. استدعاء المكتبة
+# 2. استدعاء المكتبة الحديثة (لاحظ الاسم تغير)
 try:
-    from PDFNetPython3 import PDFNet, Convert, WordOutputOptions
+    from apryse_sdk import PDFNet, Convert, WordOutputOptions
 except ImportError:
     site.main()
     try:
-        from PDFNetPython3 import PDFNet, Convert, WordOutputOptions
+        from apryse_sdk import PDFNet, Convert, WordOutputOptions
     except ImportError:
-        st.error("❌ المكتبة غير موجودة.")
+        st.error("❌ جاري تثبيت التحديثات... يرجى الانتظار دقيقة ثم إعادة التشغيل.")
         st.stop()
 
-# --- دالة إعداد المحرك (تحميل ملفات اللينكس الناقصة) ---
+# --- مفتاحك الجديد (يعمل فقط مع apryse-sdk) ---
+LICENSE_KEY = "demo:1769089401083:60be7ac403000000008734fa701ac6b35a189dc7043db3b78cdcd31eaa"
+
+# --- دالة تحميل ملفات اللينكس (ضرورية) ---
 def setup_apryse_module():
     if platform.system() == 'Linux':
         module_path = "Lib"
-        # التحقق من وجود المجلد
         if not os.path.exists(module_path):
             st.info("⚙️ جاري إعداد محرك التحويل (لأول مرة فقط)...")
+            # رابط ملفات اللينكس
             url = "https://www.pdftron.com/downloads/StructuredOutputModuleLinux.tar.gz"
             file_name = "module.tar.gz"
             try:
-                # تحميل الملف
                 response = requests.get(url, stream=True)
                 with open(file_name, "wb") as f:
                     for chunk in response.iter_content(chunk_size=1024):
                         if chunk:
                             f.write(chunk)
-                # فك الضغط
                 with tarfile.open(file_name) as tar:
                     tar.extractall(".")
                 st.success("✅ المحرك جاهز!")
@@ -45,22 +46,21 @@ def setup_apryse_module():
                 st.error(f"فشل إعداد المحرك: {e}")
                 return False
         
-        # إضافة المسارات للمكتبة
         try:
+            # ربط المسارات
             PDFNet.AddResourceSearchPath(".")
             PDFNet.AddResourceSearchPath("./Lib")
         except:
             pass
     return True
 
-# --- دالة التفعيل (بدون مفتاح لتجنب تعارض الإصدارات) ---
+# --- دالة التفعيل ---
 def init_apryse():
     try:
-        # القوس الفارغ يجبر المكتبة على العمل مهما كان إصدارها
-        PDFNet.Initialize()
+        PDFNet.Initialize(LICENSE_KEY)
         return True
     except Exception as e:
-        st.error(f"خطأ في التشغيل: {e}")
+        st.error(f"خطأ في الترخيص: {e}")
         return False
 
 # 3. الواجهة
@@ -68,15 +68,13 @@ uploaded_file = st.file_uploader("ارفع ملف PDF هنا", type=['pdf'])
 
 if uploaded_file and st.button("تحويل إلى Word"):
     
-    # 1. إعداد ملفات النظام
     if not setup_apryse_module():
         st.stop()
         
-    # 2. تشغيل المكتبة
     if not init_apryse():
         st.stop()
 
-    with st.spinner('⏳ جاري التحويل (Apryse Engine)...'):
+    with st.spinner('⏳ جاري التحويل (High Fidelity)...'):
         input_filename = "input.pdf"
         output_filename = "converted.docx"
         
